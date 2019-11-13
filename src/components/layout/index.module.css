@@ -1,0 +1,10 @@
+.header {
+    height: 40px;
+    border-bottom: 1px solid #e1e1e1;
+}
+
+
+.left {
+    width: 200px;
+    height: calc(100vh - 40px);
+}
