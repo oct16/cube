@@ -39,7 +39,16 @@ module.exports = {
                 exclude: /\.module\.css$/,
                 use: [
                     {
-                        loader: MiniCssExtractPlugin.loader
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            modules: {
+                                mode: 'local',
+                                localIdentName: '[local]--[hash:base64:6]',
+                                // localIdentName: '[path][name]__[local]--[hash:base64:5]',
+                                context: path.resolve(__dirname, '../src'),
+                                hashPrefix: 'my-custom-hash'
+                            }
+                        }
                     },
                     'css-loader'
                 ]

@@ -7,15 +7,15 @@ const devConfig = {
     plugins: [
         new MiniCssExtractPlugin({
             filename: '[name].css',
-            chunkFilename: '[id].css',
-        }),
+            chunkFilename: '[id].css'
+        })
     ],
     devServer: {
-        open: true,
+        // open: true,
         openPage: '',
         historyApiFallback: true,
-        stats: 'errors-only',
-    },
+        stats: 'errors-only'
+    }
 }
 
 module.exports = merge(webpackConfig, devConfig)
