@@ -21,7 +21,17 @@ module.exports = {
                 enforce: 'pre'
             },
             {
-                test: /\.(styl)$/,
+                test: /\.css$/,
+                exclude: /\.module\.css$/,
+                use: [
+                    {
+                        loader: MiniCssExtractPlugin.loader
+                    },
+                    'css-loader'
+                ]
+            },
+            {
+                test: /\.module\.(styl|css)$/,
                 use: [
                     {
                         loader: MiniCssExtractPlugin.loader,
@@ -29,41 +39,21 @@ module.exports = {
                             hmr: process.env.NODE_ENV === 'development'
                         }
                     },
-                    'css-loader',
-                    'postcss-loader',
-                    'stylus-loader'
-                ]
-            },
-            {
-                test: /\.css$/,
-                exclude: /\.module\.css$/,
-                use: [
                     {
-                        loader: MiniCssExtractPlugin.loader,
+                        loader: 'css-loader',
                         options: {
+                            importLoaders: 1,
                             modules: {
                                 mode: 'local',
-                                localIdentName: '[local]--[hash:base64:6]',
+                                localIdentName: '[local]-[hash:base64:5]',
                                 // localIdentName: '[path][name]__[local]--[hash:base64:5]',
                                 context: path.resolve(__dirname, '../src'),
                                 hashPrefix: 'my-custom-hash'
                             }
                         }
                     },
-                    'css-loader'
-                ]
-            },
-            {
-                test: /\.module\.css$/,
-                use: [
-                    'style-loader',
-                    {
-                        loader: 'css-loader',
-                        options: {
-                            importLoaders: 1,
-                            modules: true
-                        }
-                    }
+                    'postcss-loader',
+                    'stylus-loader'
                 ]
             },
             {
@@ -101,6 +91,6 @@ module.exports = {
             '@': path.resolve(__dirname, '../src/'),
             '~': path.resolve(__dirname, '../node_modules/')
         },
-        extensions: ['.tsx', '.ts', '.js', '*']
+        extensions: ['.tsx', '.ts', '.js', '.styl', '.stylus', '*']
     }
 }
