@@ -1,0 +1,20 @@
+.dragEl {
+    position: relative;
+
+    &:hover {
+        border: 1px solid red;
+
+        &:before {
+            content: attr(data-type);
+            left: 0;
+            top: 0;
+            height: 20px;
+            line-height: 20px;
+            padding: 0 5px;
+            background: #E1E1E1;
+            position: absolute;
+            z-index: 10;
+            cursor: move;
+        }
+    }
+}

@@ -1,13 +1,15 @@
 import { Input as InputEl } from 'antd'
 import React, { Component } from 'react'
+import ElWrap from '../el-wrap'
 
-export class Input extends Component {
+export class Input extends Component<any, any> {
     public size: number
-    constructor(props: { size: number }) {
-        super(props)
-        this.size = props.size
-    }
+
     public render() {
-        return <InputEl placeholder="input type" style={{ width: '120px' }} />
+        return (
+            <ElWrap inline={true} {...this.props}>
+                <InputEl placeholder="input type" style={{ width: '120px' }} />
+            </ElWrap>
+        )
     }
 }

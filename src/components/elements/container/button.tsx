@@ -1,8 +1,12 @@
 import { Button as ButtonEl } from 'antd'
 import React, { Component } from 'react'
-
-export class Button extends Component {
+import ElWrap from '../el-wrap'
+export class Button extends Component<any> {
     public render() {
-        return <ButtonEl {...this.props}>Button</ButtonEl>
+        return (
+            <ElWrap inline={true} {...this.props}>
+                <ButtonEl {...this.props}>Button</ButtonEl>
+            </ElWrap>
+        )
     }
 }

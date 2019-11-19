@@ -41,6 +41,10 @@ export default class Toolbar extends Component {
                         title: '数据展示',
                         subMenus: [
                             {
+                                type: 'Text',
+                                title: 'Text'
+                            },
+                            {
                                 type: 'Table',
                                 title: 'Table'
                             },

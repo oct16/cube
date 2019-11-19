@@ -1,4 +1,4 @@
-import { throttle, uniqueId } from 'lodash'
+import { throttle } from 'lodash'
 import React, { Component } from 'react'
 import * as elements from '../elements'
 interface CNode {
@@ -18,19 +18,25 @@ export default class EditBoard extends Component {
                         attr: { className: 'test2' },
                         children: [
                             {
-                                tag: 'HForm',
-                                attr: { className: 'test2' },
-                                children: []
-                            },
+                                tag: 'Text',
+                                attr: {},
+                                children: ['我是你爸爸']
+                            }
+                        ]
+                    },
+                    {
+                        tag: 'Col',
+                        attr: { className: 'test2' },
+                        children: [
                             {
-                                tag: 'Table',
+                                tag: 'HForm',
                                 attr: { className: 'test2' },
                                 children: []
                             }
                         ]
                     },
                     {
-                        tag: 'Col6',
+                        tag: 'Col',
                         attr: { className: 'test2' },
                         children: [
                             {
@@ -41,9 +47,36 @@ export default class EditBoard extends Component {
                         ]
                     },
                     {
+                        tag: 'Col',
+                        attr: { className: 'test2' },
+                        children: [
+                            {
+                                tag: 'Button',
+                                attr: { className: 'test2' },
+                                children: []
+                            },
+                            {
+                                tag: 'Input',
+                                attr: { className: 'test2' },
+                                children: []
+                            }
+                        ]
+                    },
+                    {
                         tag: 'Col6',
                         attr: { className: 'test2' },
                         children: []
+                    },
+                    {
+                        tag: 'Col6',
+                        attr: { className: 'test2' },
+                        children: [
+                            {
+                                tag: 'Button',
+                                attr: { type: 'primary' },
+                                children: []
+                            }
+                        ]
                     }
                 ]
             }
@@ -62,7 +95,7 @@ export default class EditBoard extends Component {
     })()
 
     public hasClassName(node: HTMLElement, name: string): boolean {
-        return node.className.indexOf(name) !== -1
+        return !!~node.className.indexOf(name)
     }
 
     public drop(e: React.DragEvent<HTMLDivElement>): void {
@@ -165,13 +198,20 @@ export default class EditBoard extends Component {
 
     public travelNodes(arr: CNode[], path: string = ''): JSX.Element[] {
         return arr.map((node, index) => {
+            if (typeof node === 'string') {
+                return node
+            }
             const Element = elements[node.tag]
-            console.log(elements)
-
             const currentPath = path ? path + '-' + index : String(index)
-            const key = uniqueId()
             return (
-                <Element onDragStart={this.drag} draggable={true} key={key} {...node.attr} v-p={currentPath}>
+                <Element
+                    {...node.attr}
+                    onDragStart={this.drag}
+                    draggable
+                    key={currentPath}
+                    v-p={currentPath}
+                    data-type={node.tag}
+                >
                     {this.travelNodes(node.children, currentPath)}
                 </Element>
             )
