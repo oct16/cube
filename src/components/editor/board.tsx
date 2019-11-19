@@ -1,7 +1,6 @@
 import { throttle, uniqueId } from 'lodash'
 import React, { Component } from 'react'
 import * as elements from '../elements'
-
 interface CNode {
     tag: string
     attr: { [key: string]: string | number }
@@ -19,42 +18,36 @@ export default class EditBoard extends Component {
                         attr: { className: 'test2' },
                         children: [
                             {
-                                tag: 'Button',
-                                attr: { type: 'primary' },
+                                tag: 'HForm',
+                                attr: { className: 'test2' },
                                 children: []
                             },
                             {
-                                tag: 'Button',
-                                attr: { className: 'test32' },
+                                tag: 'Table',
+                                attr: { className: 'test2' },
                                 children: []
                             }
                         ]
-                    }
-                ]
-            }
-            {
-                tag: 'Container',
-                attr: { className: 'test1' },
-                children: [
+                    },
                     {
                         tag: 'Col6',
                         attr: { className: 'test2' },
                         children: [
                             {
-                                tag: 'Button',
-                                attr: { type: 'primary' },
-                                children: []
-                            },
-                            {
-                                tag: 'Button',
-                                attr: { className: 'test32' },
+                                tag: 'Table',
+                                attr: { className: 'test2' },
                                 children: []
                             }
                         ]
+                    },
+                    {
+                        tag: 'Col6',
+                        attr: { className: 'test2' },
+                        children: []
                     }
                 ]
             }
-        ] as CNode[],
+        ] as CNode[]
     }
 
     public onDragOver = (() => {
@@ -74,34 +67,75 @@ export default class EditBoard extends Component {
 
     public drop(e: React.DragEvent<HTMLDivElement>): void {
         e.preventDefault()
-        const type = e.dataTransfer.getData('type')
-
+        const addType = e.dataTransfer.getData('add')
+        const movePosition = e.dataTransfer.getData('move')
         const target = e.target as HTMLElement
+        const position = target.getAttribute('v-p')
 
-        if (this.canDrop(target, type)) {
-            const position = target.getAttribute('v-p')
-            if (position) {
-                this.insertItem(position, type)
-            } else {
-                this.state.nodes.push({
-                    tag: type,
-                    attr: {},
-                    children: []
-                })
-                this.forceUpdate()
+        if (addType) {
+            if (this.canDrop(target, addType)) {
+                if (position) {
+                    this.insertItem(position, addType)
+                } else {
+                    this.state.nodes.push({
+                        tag: addType,
+                        attr: {},
+                        children: []
+                    })
+                    this.forceUpdate()
+                }
+            }
+        }
+
+        if (movePosition) {
+            const { tag } = this.getTargetData(movePosition)
+            if (this.canDrop(target, tag)) {
+                if (position) {
+                    const from = e.dataTransfer.getData('move')
+                    this.moveItem(from, position)
+                }
+            }
+        }
+    }
+
+    public getTargetData(position: string): CNode {
+        const indexArr = position.match(/\d+/g)
+        let nodes = this.state.nodes
+        let node: any
+        if (indexArr) {
+            indexArr.forEach(i => {
+                node = nodes[i]
+                nodes = node.children
+            })
+        }
+        return node
+    }
+
+    public moveItem(from: string, to: string) {
+        if (from === to) {
+            return
+        }
+        const matches = from.match(/(.+?)-(\d)$/)
+        const [, position, index] = matches!
+
+        const parentNode = this.getTargetData(position)
+        const toNode = this.getTargetData(to).children
+
+        if (index || Number(index) === 0) {
+            if (parentNode) {
+                const [node] = parentNode.children.splice(Number(index), 1)
+                if (toNode) {
+                    toNode.push(node)
+                    this.forceUpdate()
+                }
             }
         }
     }
 
     // position: e.g. 0-0-1
     public insertItem(position: string, type: string) {
-        const indexArr = position.match(/\d+/g)
-        let nodes = this.state.nodes
-        if (indexArr) {
-            indexArr.forEach(i => {
-                nodes = nodes[i].children
-            })
-
+        const nodes = this.getTargetData(position).children
+        if (nodes) {
             nodes.push({
                 tag: type,
                 attr: {},
@@ -111,7 +145,16 @@ export default class EditBoard extends Component {
         }
     }
 
-    public canDrop(target: HTMLElement, type: string): boolean {
+    public drag(e: DragEvent) {
+        const target = e.target as HTMLElement
+        const position = target.getAttribute('v-p')
+        if (position) {
+            e.dataTransfer!.setData('move', position)
+        }
+        e.stopPropagation()
+    }
+
+    public canDrop(target: HTMLElement, type?: string): boolean {
         if (type === 'Col' || type === 'Col6') {
             return this.hasClassName(target, 'row')
         } else if (type === 'Container') {
@@ -123,10 +166,12 @@ export default class EditBoard extends Component {
     public travelNodes(arr: CNode[], path: string = ''): JSX.Element[] {
         return arr.map((node, index) => {
             const Element = elements[node.tag]
-            const currentPath = path ? path + '-' + index : String(index)
+            console.log(elements)
 
+            const currentPath = path ? path + '-' + index : String(index)
+            const key = uniqueId()
             return (
-                <Element key={uniqueId()} {...node.attr} v-p={currentPath}>
+                <Element onDragStart={this.drag} draggable={true} key={key} {...node.attr} v-p={currentPath}>
                     {this.travelNodes(node.children, currentPath)}
                 </Element>
             )

@@ -2,12 +2,65 @@ import { Icon, Menu } from 'antd'
 import React, { Component } from 'react'
 const { SubMenu } = Menu
 export default class Toolbar extends Component {
+    public state = {
+        menus: [
+            {
+                title: '基础元素',
+                subMenus: [
+                    {
+                        title: '容器',
+                        subMenus: [
+                            {
+                                type: 'Container',
+                                title: 'Container'
+                            },
+                            {
+                                type: 'Col',
+                                title: 'Col'
+                            },
+                            {
+                                type: 'Col6',
+                                title: 'Col-6'
+                            }
+                        ]
+                    },
+                    {
+                        title: '组件',
+                        subMenus: [
+                            {
+                                type: 'Button',
+                                title: 'Button'
+                            },
+                            {
+                                type: 'Input',
+                                title: 'Input'
+                            }
+                        ]
+                    },
+                    {
+                        title: '数据展示',
+                        subMenus: [
+                            {
+                                type: 'Table',
+                                title: 'Table'
+                            },
+                            {
+                                type: 'HForm',
+                                title: 'HForm'
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
     public handleClick = e => {
+        return
         console.log('click ', e)
     }
-    public drag = e => {
+    public onDragStart(e: any) {
         const type = (e.target as HTMLElement).attributes['v-type'].value
-        e.dataTransfer.setData('type', type)
+        e.dataTransfer!.setData('add', type)
     }
 
     public render() {
@@ -15,54 +68,44 @@ export default class Toolbar extends Component {
             <Menu
                 onClick={this.handleClick}
                 style={{ height: '100%' }}
-                defaultSelectedKeys={['1']}
-                defaultOpenKeys={['sub1']}
+                defaultSelectedKeys={[]}
+                defaultOpenKeys={[this.state.menus[0].title]}
                 mode="inline"
             >
-                <SubMenu
-                    key="sub1"
-                    title={
-                        <span>
-                            <Icon type="mail" />
-                            <span>基础元素</span>
-                        </span>
-                    }
-                >
-                    <Menu.ItemGroup key="g1" title="容器">
-                        <Menu.Item key="1">
-                            <div
-                                style={{ width: '60px' }}
-                                draggable={true}
-                                onDragStart={this.drag}
-                                // onDragOver={this.drag}
-                                // onDragEnd={this.drag}
-                                v-type="Container"
-                            >
-                                Container
-                            </div>
-                        </Menu.Item>
-                        <Menu.Item key="2">
-                            <div style={{ width: '60px' }} draggable={true} onDragStart={this.drag} v-type="Col">
-                                Col
-                            </div>
-                        </Menu.Item>
-                        <Menu.Item key="22">
-                            <div style={{ width: '60px' }} draggable={true} onDragStart={this.drag} v-type="Col6">
-                                Col-6
-                            </div>
-                        </Menu.Item>
-                        <Menu.Item key="3">
-                            <div style={{ width: '60px' }} draggable={true} onDragStart={this.drag} v-type="Input">
-                                Input
-                            </div>
-                        </Menu.Item>
-                        <Menu.Item key="4">
-                            <div style={{ width: '60px' }} draggable={true} onDragStart={this.drag} v-type="Button">
-                                Button
-                            </div>
-                        </Menu.Item>
-                    </Menu.ItemGroup>
-                </SubMenu>
+                {this.state.menus.map((item, index) => {
+                    return (
+                        <SubMenu
+                            key={item.title}
+                            title={
+                                <span>
+                                    <Icon type="mail" />
+                                    <span>{item.title}</span>
+                                </span>
+                            }
+                        >
+                            {item.subMenus.map((itemLevel1, indexLevel1) => {
+                                return (
+                                    <Menu.ItemGroup key={indexLevel1} title={itemLevel1.title}>
+                                        {itemLevel1.subMenus.map((itemLevel2, indexLevel2) => {
+                                            return (
+                                                <Menu.Item key={itemLevel1.title + indexLevel2}>
+                                                    <div
+                                                        style={{ width: '60px' }}
+                                                        draggable={true}
+                                                        onDragStart={this.onDragStart}
+                                                        v-type={itemLevel2.title}
+                                                    >
+                                                        {itemLevel2.title}
+                                                    </div>
+                                                </Menu.Item>
+                                            )
+                                        })}
+                                    </Menu.ItemGroup>
+                                )
+                            })}
+                        </SubMenu>
+                    )
+                })}
             </Menu>
         )
     }
