@@ -24,3 +24,19 @@ export const canDrop = (target: HTMLElement, type?: string): boolean => {
 export const hasClassName = (node: HTMLElement, name: string): boolean => {
     return !!~node.className.indexOf(name)
 }
+
+export const createElementByType = (type: string) => {
+    const children: any[] = []
+    switch (type) {
+        case 'Text':
+            children.push('text element')
+            break
+        default:
+            break
+    }
+    return {
+        tag: type,
+        attr: {},
+        children
+    }
+}

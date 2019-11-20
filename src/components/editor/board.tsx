@@ -1,5 +1,5 @@
 import { CNode } from '@/interfaces/editor'
-import { canDrop, getTargetData } from '@/utils/editor'
+import { canDrop, createElementByType, getTargetData } from '@/utils/editor'
 import { throttle } from 'lodash'
 import React, { Component } from 'react'
 import * as elements from '../elements'
@@ -150,11 +150,7 @@ export default class EditBoard extends Component {
     public insertItem(position: string, type: string) {
         const nodes = getTargetData(position, this.state.nodes).children
         if (nodes) {
-            nodes.push({
-                tag: type,
-                attr: {},
-                children: []
-            })
+            nodes.push(createElementByType(type))
             this.forceUpdate()
         }
     }

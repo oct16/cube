@@ -42,7 +42,10 @@ export default class Toolbar extends Component {
                         subMenus: [
                             {
                                 type: 'Text',
-                                title: 'Text'
+                                title: 'Text',
+                                extra: {
+                                    children: ['文本']
+                                }
                             },
                             {
                                 type: 'Table',
@@ -98,6 +101,7 @@ export default class Toolbar extends Component {
                                                         draggable={true}
                                                         onDragStart={this.onDragStart}
                                                         data-type={itemLevel2.title}
+                                                        data-extra={itemLevel2.extra}
                                                     >
                                                         {itemLevel2.title}
                                                     </div>
