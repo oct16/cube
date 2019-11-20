@@ -20,7 +20,7 @@ export default class Toolbar extends Component {
                             },
                             {
                                 type: 'Col6',
-                                title: 'Col-6'
+                                title: 'Col6'
                             }
                         ]
                     },
@@ -63,7 +63,7 @@ export default class Toolbar extends Component {
         console.log('click ', e)
     }
     public onDragStart(e: any) {
-        const type = (e.target as HTMLElement).attributes['v-type'].value
+        const type = (e.target as HTMLElement).attributes['data-type'].value
         e.dataTransfer!.setData('add', type)
     }
 
@@ -97,7 +97,7 @@ export default class Toolbar extends Component {
                                                         style={{ width: '60px' }}
                                                         draggable={true}
                                                         onDragStart={this.onDragStart}
-                                                        v-type={itemLevel2.title}
+                                                        data-type={itemLevel2.title}
                                                     >
                                                         {itemLevel2.title}
                                                     </div>

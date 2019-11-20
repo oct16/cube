@@ -1,5 +1,6 @@
 import { Table as T } from 'antd'
 import React, { Component } from 'react'
+import ElWrap from '../el-wrap'
 
 export class Table extends Component {
     public dataSource = [
@@ -36,6 +37,10 @@ export class Table extends Component {
     ]
 
     public render() {
-        return <T dataSource={this.dataSource} columns={this.columns} />
+        return (
+            <ElWrap {...this.props}>
+                <T dataSource={this.dataSource} columns={this.columns} />
+            </ElWrap>
+        )
     }
 }

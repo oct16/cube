@@ -5,7 +5,7 @@ export class Button extends Component<any> {
     public render() {
         return (
             <ElWrap inline={true} {...this.props}>
-                <ButtonEl {...this.props}>Button</ButtonEl>
+                <ButtonEl>Button</ButtonEl>
             </ElWrap>
         )
     }

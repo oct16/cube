@@ -1,11 +1,8 @@
+import { CNode } from '@/interfaces/editor'
+import { canDrop, getTargetData } from '@/utils/editor'
 import { throttle } from 'lodash'
 import React, { Component } from 'react'
 import * as elements from '../elements'
-interface CNode {
-    tag: string
-    attr: { [key: string]: string | number }
-    children: CNode[]
-}
 export default class EditBoard extends Component {
     public state = {
         nodes: [
@@ -94,19 +91,15 @@ export default class EditBoard extends Component {
         }
     })()
 
-    public hasClassName(node: HTMLElement, name: string): boolean {
-        return !!~node.className.indexOf(name)
-    }
-
     public drop(e: React.DragEvent<HTMLDivElement>): void {
         e.preventDefault()
         const addType = e.dataTransfer.getData('add')
         const movePosition = e.dataTransfer.getData('move')
         const target = e.target as HTMLElement
-        const position = target.getAttribute('v-p')
+        const position = target.getAttribute('data-p')
 
         if (addType) {
-            if (this.canDrop(target, addType)) {
+            if (canDrop(target, addType)) {
                 if (position) {
                     this.insertItem(position, addType)
                 } else {
@@ -121,8 +114,8 @@ export default class EditBoard extends Component {
         }
 
         if (movePosition) {
-            const { tag } = this.getTargetData(movePosition)
-            if (this.canDrop(target, tag)) {
+            const { tag } = getTargetData(movePosition, this.state.nodes)
+            if (canDrop(target, tag)) {
                 if (position) {
                     const from = e.dataTransfer.getData('move')
                     this.moveItem(from, position)
@@ -131,43 +124,31 @@ export default class EditBoard extends Component {
         }
     }
 
-    public getTargetData(position: string): CNode {
-        const indexArr = position.match(/\d+/g)
-        let nodes = this.state.nodes
-        let node: any
-        if (indexArr) {
-            indexArr.forEach(i => {
-                node = nodes[i]
-                nodes = node.children
-            })
-        }
-        return node
-    }
-
-    public moveItem(from: string, to: string) {
+    public moveItem(from: string, to?: string) {
         if (from === to) {
             return
         }
         const matches = from.match(/(.+?)-(\d)$/)
         const [, position, index] = matches!
-
-        const parentNode = this.getTargetData(position)
-        const toNode = this.getTargetData(to).children
-
+        const parentNode = getTargetData(position, this.state.nodes)
+        let toNode: CNode[] | undefined
+        if (to) {
+            toNode = getTargetData(to, this.state.nodes).children
+        }
         if (index || Number(index) === 0) {
             if (parentNode) {
                 const [node] = parentNode.children.splice(Number(index), 1)
                 if (toNode) {
                     toNode.push(node)
-                    this.forceUpdate()
                 }
+                this.forceUpdate()
             }
         }
     }
 
     // position: e.g. 0-0-1
     public insertItem(position: string, type: string) {
-        const nodes = this.getTargetData(position).children
+        const nodes = getTargetData(position, this.state.nodes).children
         if (nodes) {
             nodes.push({
                 tag: type,
@@ -178,22 +159,17 @@ export default class EditBoard extends Component {
         }
     }
 
+    public deleteItem(position: string) {
+        this.moveItem(position)
+    }
+
     public drag(e: DragEvent) {
         const target = e.target as HTMLElement
-        const position = target.getAttribute('v-p')
+        const position = target.getAttribute('data-p')
         if (position) {
             e.dataTransfer!.setData('move', position)
         }
         e.stopPropagation()
-    }
-
-    public canDrop(target: HTMLElement, type?: string): boolean {
-        if (type === 'Col' || type === 'Col6') {
-            return this.hasClassName(target, 'row')
-        } else if (type === 'Container') {
-            return this.hasClassName(target, 'board')
-        }
-        return this.hasClassName(target, 'col')
     }
 
     public travelNodes(arr: CNode[], path: string = ''): JSX.Element[] {
@@ -207,9 +183,10 @@ export default class EditBoard extends Component {
                 <Element
                     {...node.attr}
                     onDragStart={this.drag}
+                    onDeleteItem={this.deleteItem.bind(this)}
                     draggable
                     key={currentPath}
-                    v-p={currentPath}
+                    data-p={currentPath}
                     data-type={node.tag}
                 >
                     {this.travelNodes(node.children, currentPath)}
