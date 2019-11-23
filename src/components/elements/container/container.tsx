@@ -5,7 +5,7 @@ import styles from './style.module.styl'
 export class Container extends Component {
     public render() {
         const { children, ...props } = this.props
-        const { className, onDeleteItem, ..._props } = props as any
+        const { className, onDeleteItem, onSelectItem, ..._props } = props as any
 
         return (
             <div className={cn(styles.container)}>

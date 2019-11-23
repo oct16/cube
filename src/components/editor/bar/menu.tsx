@@ -1,7 +1,7 @@
 import { Icon, Menu } from 'antd'
 import React, { Component } from 'react'
 const { SubMenu } = Menu
-export default class Toolbar extends Component {
+export default class MenuBar extends Component {
     public state = {
         menus: [
             {

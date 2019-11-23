@@ -2,8 +2,10 @@ import { CNode } from '@/interfaces/editor'
 import { canDrop, createElementByType, getTargetData } from '@/utils/editor'
 import { throttle } from 'lodash'
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
+import { addSelect } from '../../redux/actions'
 import * as elements from '../elements'
-export default class EditBoard extends Component {
+class EditBoard extends Component<any, any> {
     public state = {
         nodes: [
             {
@@ -18,6 +20,16 @@ export default class EditBoard extends Component {
                                 tag: 'Text',
                                 attr: {},
                                 children: ['我是你爸爸']
+                            },
+                            {
+                                tag: 'Button',
+                                attr: { className: 'test2', type: 'primary' },
+                                children: ['Button按钮']
+                            },
+                            {
+                                tag: 'Input',
+                                attr: { value: 123123 },
+                                children: []
                             }
                         ]
                     },
@@ -42,38 +54,6 @@ export default class EditBoard extends Component {
                                 children: []
                             }
                         ]
-                    },
-                    {
-                        tag: 'Col',
-                        attr: { className: 'test2' },
-                        children: [
-                            {
-                                tag: 'Button',
-                                attr: { className: 'test2' },
-                                children: []
-                            },
-                            {
-                                tag: 'Input',
-                                attr: { className: 'test2' },
-                                children: []
-                            }
-                        ]
-                    },
-                    {
-                        tag: 'Col6',
-                        attr: { className: 'test2' },
-                        children: []
-                    },
-                    {
-                        tag: 'Col6',
-                        attr: { className: 'test2' },
-                        children: [
-                            {
-                                tag: 'Button',
-                                attr: { type: 'primary' },
-                                children: []
-                            }
-                        ]
                     }
                 ]
             }
@@ -91,7 +71,7 @@ export default class EditBoard extends Component {
         }
     })()
 
-    public drop(e: React.DragEvent<HTMLDivElement>): void {
+    public handleDrop(e: React.DragEvent<HTMLDivElement>): void {
         e.preventDefault()
         const addType = e.dataTransfer.getData('add')
         const movePosition = e.dataTransfer.getData('move')
@@ -159,7 +139,13 @@ export default class EditBoard extends Component {
         this.moveItem(position)
     }
 
-    public drag(e: DragEvent) {
+    public handleSelect(position: string) {
+        const node = getTargetData(position, this.state.nodes)
+        this.props.addSelect(node)
+        this.forceUpdate()
+    }
+
+    public handleDrag(e: DragEvent) {
         const target = e.target as HTMLElement
         const position = target.getAttribute('data-p')
         if (position) {
@@ -175,10 +161,13 @@ export default class EditBoard extends Component {
             }
             const Element = elements[node.tag]
             const currentPath = path ? path + '-' + index : String(index)
+            
             return (
                 <Element
+                    selected={this.props.selectNode === node ? true : false}
                     {...node.attr}
-                    onDragStart={this.drag}
+                    onSelectItem={this.handleSelect.bind(this)}
+                    onDragStart={this.handleDrag}
                     onDeleteItem={this.deleteItem.bind(this)}
                     draggable
                     key={currentPath}
@@ -194,7 +183,7 @@ export default class EditBoard extends Component {
     public render() {
         return (
             <div
-                onDrop={this.drop.bind(this)}
+                onDrop={this.handleDrop.bind(this)}
                 onDragOver={this.onDragOver.bind(this)}
                 style={{ paddingBottom: '20px' }}
                 className="board"
@@ -204,3 +193,13 @@ export default class EditBoard extends Component {
         )
     }
 }
+
+const mapStateToProps = state => {
+    const { selectNode } = state.select
+    return { selectNode }
+}
+
+export default connect(
+    mapStateToProps,
+    { addSelect }
+)(EditBoard)

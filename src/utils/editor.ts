@@ -40,3 +40,11 @@ export const createElementByType = (type: string) => {
         children
     }
 }
+
+export const findWrapNode = (targetNode: HTMLElement, currentTarget: HTMLElement) => {
+    const p = targetNode.getAttribute('data-p')
+    if (!p && targetNode.parentElement && currentTarget !== targetNode) {
+        return findWrapNode(targetNode.parentElement, currentTarget)
+    }
+    return p
+}

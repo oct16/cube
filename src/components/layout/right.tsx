@@ -1,12 +1,9 @@
 import React, { Component } from 'react'
-import EditBoard from '../editor/board'
+
+import styles from './layout.module.styl'
 
 export default class Right extends Component {
     public render() {
-        return (
-            <div className="w-100">
-                <EditBoard />
-            </div>
-        )
+        return <div className={styles.right}>{this.props.children}</div>
     }
 }

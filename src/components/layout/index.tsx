@@ -2,7 +2,8 @@ import React from 'react'
 import { Route } from 'react-router-dom'
 import Footer from './footer'
 import Header from './header'
-import styles from './index.module.css'
+import styles from './layout.module.styl'
+
 const DefaultLayout = ({ component: C, ...rest }) => {
     return (
         <Route
