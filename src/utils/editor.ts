@@ -1,15 +1,33 @@
 import { CNode } from '@/interfaces/editor'
 
-export const getTargetData = (position: string, nodes: CNode[]): CNode => {
-    const indexArr = position.match(/\d+/g)
-    let node: any
-    if (indexArr) {
-        indexArr.forEach(i => {
-            node = nodes[i]
+export const getTargetData = (
+    position: string,
+    nodes: CNode[]
+): { node: CNode; index: number; children: CNode[]; parent: CNode } => {
+    const indexArr = position.match(/\d+/g)!
+    return indexArr.reduce(
+        (acc, i, index) => {
+            let parent
+            const node = nodes[i] as CNode
+            if (index === indexArr.length - 2) {
+                parent = nodes[i]
+            }
             nodes = node.children
-        })
-    }
-    return node
+
+            return {
+                node,
+                index: Number(i),
+                children: nodes,
+                parent: parent || acc.parent
+            }
+        },
+        {
+            node: (null as unknown) as CNode,
+            index: (null as unknown) as number,
+            children: (null as unknown) as CNode[],
+            parent: (null as unknown) as CNode
+        }
+    )
 }
 
 export const canDrop = (target: HTMLElement, type?: string): boolean => {

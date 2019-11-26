@@ -16,7 +16,12 @@
             "allow-declarations"
         ],
         "ban-types": false,
-        "no-bitwise": false
+        "no-bitwise": false,
+        "variable-name": {
+            "options": [
+                "allow-leading-underscore"
+            ]
+        }
     },
     "rulesDirectory": []
 }

@@ -1,65 +1,12 @@
 import { CNode } from '@/interfaces/editor'
+import { updateNodes, updateSelect } from '@/redux/actions'
+import ProjectService from '@/services/project.service'
 import { canDrop, createElementByType, getTargetData } from '@/utils/editor'
 import { throttle } from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { addSelect } from '../../redux/actions'
 import * as elements from '../elements'
 class EditBoard extends Component<any, any> {
-    public state = {
-        nodes: [
-            {
-                tag: 'Container',
-                attr: { className: 'test1' },
-                children: [
-                    {
-                        tag: 'Col6',
-                        attr: { className: 'test2' },
-                        children: [
-                            {
-                                tag: 'Text',
-                                attr: {},
-                                children: ['我是你爸爸']
-                            },
-                            {
-                                tag: 'Button',
-                                attr: { className: 'test2', type: 'primary' },
-                                children: ['Button按钮']
-                            },
-                            {
-                                tag: 'Input',
-                                attr: { value: 123123 },
-                                children: []
-                            }
-                        ]
-                    },
-                    {
-                        tag: 'Col',
-                        attr: { className: 'test2' },
-                        children: [
-                            {
-                                tag: 'HForm',
-                                attr: { className: 'test2' },
-                                children: []
-                            }
-                        ]
-                    },
-                    {
-                        tag: 'Col',
-                        attr: { className: 'test2' },
-                        children: [
-                            {
-                                tag: 'Table',
-                                attr: { className: 'test2' },
-                                children: []
-                            }
-                        ]
-                    }
-                ]
-            }
-        ] as CNode[]
-    }
-
     public onDragOver = (() => {
         const onOver = throttle((target: HTMLElement) => {
             // console.log(target)
@@ -70,6 +17,11 @@ class EditBoard extends Component<any, any> {
             return onOver(target)
         }
     })()
+
+    public componentDidMount() {
+        const data = ProjectService.getData()
+        this.props.updateNodes(data)
+    }
 
     public handleDrop(e: React.DragEvent<HTMLDivElement>): void {
         e.preventDefault()
@@ -83,7 +35,7 @@ class EditBoard extends Component<any, any> {
                 if (position) {
                     this.insertItem(position, addType)
                 } else {
-                    this.state.nodes.push({
+                    this.props.nodes.push({
                         tag: addType,
                         attr: {},
                         children: []
@@ -94,8 +46,8 @@ class EditBoard extends Component<any, any> {
         }
 
         if (movePosition) {
-            const { tag } = getTargetData(movePosition, this.state.nodes)
-            if (canDrop(target, tag)) {
+            const { node } = getTargetData(movePosition, this.props.nodes)
+            if (canDrop(target, node.tag)) {
                 if (position) {
                     const from = e.dataTransfer.getData('move')
                     this.moveItem(from, position)
@@ -110,10 +62,10 @@ class EditBoard extends Component<any, any> {
         }
         const matches = from.match(/(.+?)-(\d)$/)
         const [, position, index] = matches!
-        const parentNode = getTargetData(position, this.state.nodes)
+        const { node: parentNode } = getTargetData(position, this.props.nodes)
         let toNode: CNode[] | undefined
         if (to) {
-            toNode = getTargetData(to, this.state.nodes).children
+            toNode = getTargetData(to, this.props.nodes).children
         }
         if (index || Number(index) === 0) {
             if (parentNode) {
@@ -128,7 +80,7 @@ class EditBoard extends Component<any, any> {
 
     // position: e.g. 0-0-1
     public insertItem(position: string, type: string) {
-        const nodes = getTargetData(position, this.state.nodes).children
+        const nodes = getTargetData(position, this.props.nodes).children
         if (nodes) {
             nodes.push(createElementByType(type))
             this.forceUpdate()
@@ -140,8 +92,8 @@ class EditBoard extends Component<any, any> {
     }
 
     public handleSelect(position: string) {
-        const node = getTargetData(position, this.state.nodes)
-        this.props.addSelect(node)
+        const { node } = getTargetData(position, this.props.nodes)
+        this.props.updateSelect(node, position)
         this.forceUpdate()
     }
 
@@ -161,7 +113,7 @@ class EditBoard extends Component<any, any> {
             }
             const Element = elements[node.tag]
             const currentPath = path ? path + '-' + index : String(index)
-            
+
             return (
                 <Element
                     selected={this.props.selectNode === node ? true : false}
@@ -182,13 +134,8 @@ class EditBoard extends Component<any, any> {
 
     public render() {
         return (
-            <div
-                onDrop={this.handleDrop.bind(this)}
-                onDragOver={this.onDragOver.bind(this)}
-                style={{ paddingBottom: '20px' }}
-                className="board"
-            >
-                {this.travelNodes(this.state.nodes)}
+            <div onDrop={this.handleDrop.bind(this)} onDragOver={this.onDragOver.bind(this)} className="board mb-2">
+                {this.travelNodes(this.props.nodes)}
             </div>
         )
     }
@@ -196,10 +143,11 @@ class EditBoard extends Component<any, any> {
 
 const mapStateToProps = state => {
     const { selectNode } = state.select
-    return { selectNode }
+    const { nodes } = state.nodes
+    return { selectNode, nodes }
 }
 
 export default connect(
     mapStateToProps,
-    { addSelect }
+    { updateSelect, updateNodes }
 )(EditBoard)
